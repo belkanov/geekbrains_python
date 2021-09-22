@@ -8,13 +8,35 @@
             margin: 10px;
         }
 
-        div#part-1>img{
-            margin: 8px
+        div#part-1 > img {
+            margin: 8px;
         }
 
         #img-big {
-            max-width:70vw
+            max-width: 70vw;
         }
+
+        .img-container {
+            /*position: relative;*/
+            display:flex;
+            justify-content: center;
+        }
+
+        .img-slider {
+            max-width: 70vw;
+        }
+
+        /*.left-button {*/
+        /*    position: absolute;*/
+        /*    left: 0;*/
+        /*    bottom: 50%;*/
+        }
+
+        /*.right-button {*/
+        /*    position: absolute;*/
+        /*    right: 0;*/
+        /*    bottom: 50%;*/
+        /*}*/
     </style>
 </head>
 <body>
@@ -32,11 +54,17 @@
         <h3>Товары:</h3>
     </div>
     <div class="basket">
-        <h3 >Корзина: <span>0 шт., 0$</span></h3>
+        <h3>Корзина: <span>0 шт., 0$</span></h3>
     </div>
 </div>
 <hr>
-<div id="part-3"></div>
+<div id="part-3">
+    <div class="img-container">
+        <button class="left-button">LEFT</button>
+        <img class="img-slider" src="big/1.jpg">
+        <button class="right-button">RIGHT</button>
+    </div>
+</div>
 <script src="lesson_6.js"></script>
 </body>
 </html>

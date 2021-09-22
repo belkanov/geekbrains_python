@@ -98,15 +98,45 @@ arrProducts.forEach(function(obj, idx){
 // По сторонам от большой картинки должны быть стрелки «вперед» и «назад»,
 // по нажатию на которые происходит замена изображения на следующее или предыдущее.
 
-function part_3() {
-    console.log('--- part_3');
+const arrImgPaths = ["big/1.jpg", "big/2.jpg", "big/3_.jpg"], // предположим, что мы эту штуку будем получать от бэка
+      leftBtn = document.querySelector('#part-3 .left-button'),
+      rightBtn = document.querySelector('#part-3 .right-button'),
+      img = document.querySelector('#part-3 img');
 
-    const rslt = ProductItem.createCatalogHTML(arrProduct);
-    document.querySelector('#part-3').appendChild(rslt);
+function part_3() {
+    function toLeft(){
+        let idx = leftBtn.idx || 0;
+        if (Number(idx) <= 0){
+            idx = arrImgPaths.length-1;
+        } else {
+            idx -= 1;
+        }
+        leftBtn.idx = idx;
+        rightBtn.idx = idx;
+
+        img.src = arrImgPaths[idx];
+    }
+
+    function toRight(){
+        let idx = rightBtn.idx || 0;
+        if (Number(idx) >= arrImgPaths.length-1){
+            idx = 0;
+        } else {
+            idx += 1;
+        }
+        leftBtn.idx = idx;
+        rightBtn.idx = idx;
+
+        img.src = arrImgPaths[idx];
+    }
+
+    leftBtn.onclick = toLeft;
+    rightBtn.onclick = toRight;
+
 }
 
 
 
 part_1();
 // part_2();
-// part_3();
+part_3();

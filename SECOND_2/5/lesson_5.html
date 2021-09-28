@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lesson_1</title>
+    <style>
+        div.chessboard {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 450px;
+            height: 450px;
+        }
+
+        div.cell {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+        }
+
+        div.col-name, div.row-name {
+            font-size: 50px;
+            text-align: center;
+        }
+
+        div.chess-cell:nth-child(2n+1) {
+            background-color: black;
+        }
+
+        div.product-container {
+            display: flex;
+            /*flex-direction: row;*/
+            flex-wrap: wrap;
+        }
+
+        div.product-elem {
+            margin: 2px;
+        }
+
+        div.product-elem-break {
+            flex-basis: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="part-1"></div>
+<hr>
+<div id="part-2"></div>
+<hr>
+<div id="part-3"></div>
+<script src="lesson_5.js"></script>
+</body>
+</html>

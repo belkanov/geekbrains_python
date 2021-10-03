@@ -1,7 +1,10 @@
-// 1. Добавьте пустые классы для Корзины товаров и Элемента корзины товаров.
-//    Продумайте, какие методы понадобятся для работы с этими сущностями.
+const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
 class CartItem {
-    constructor() {
+    constructor({title, price, count = 1}) {
+        this.title = title;
+        this.price = price;
+        this.count = count;
     }
 
     render() {
@@ -10,15 +13,40 @@ class CartItem {
 
 class Cart {
     constructor() {
+        this.list = [];
     }
 
     render() {
     }
 
-    addItem() {
+    // 2. Добавьте в соответствующие классы методы добавления товара в корзину, удаления товара из корзины и получения списка товаров корзины.
+    //
+    // я чет не совсем понял надо ли писать HTML под все это дело (в методе вроде пишут HTML для чего-то нового - я там этого не увидел).
+    // Пока сделал без него. Дальше либо из методы возьму, либо сам напишу.
+    addItem({product_name: title, price}) {
+        this.list.push(new CartItem({title, price}));
     }
 
-    removeItem() {
+    removeItem({idx}) {
+        this.list.splice(idx, 1);
+        // тут код удаления DOM CartItem
+        //
+        // тут возможно Cart.calc(), чтобы обновить сумму корзины, шт., ...
+        // ну или что-то более локальное
+    }
+
+    getList() {
+        return this.list; // если тут имелся ввинду рендер корзины в виде списка - переделаю в следующих ДЗ
+    }
+
+    addCount(idx) {
+        this.list[idx].count += 1;
+        // тут код обновления HTML для данного элекмента
+    }
+
+    subCount(idx) {
+        this.list[idx].count -= 1;
+        // тут код обновления HTML для данного элекмента
     }
 
     calc() {
@@ -26,8 +54,8 @@ class Cart {
 }
 
 class GoodsItem {
-    constructor({title, price}) {
-        this.title = title;
+    constructor({product_name, price}) {
+        this.title = product_name;
         this.price = price;
     }
 
@@ -41,25 +69,18 @@ class GoodsList {
         this.goods = [];
     }
 
+    // 3. Переделайте GoodsList так, чтобы fetchGoods() возвращал промис, а render() вызывался в обработчике этого промиса.
     fetchGoods() {
-        this.goods = [
-            {title: 'Shirt', price: 150},
-            {title: 'Socks', price: 50},
-            {title: 'Jacket', price: 350},
-            {title: 'Shoes', price: 250},
-        ];
+        return makeGETRequest(`${API_URL}/catalogData.json`)
+                .then((goods) => {
+                    this.goods = JSON.parse(goods);
+                });
     }
 
     render() {
-        // let listHtml = '';
-        // this.goods.forEach(good => {
-        //   const goodItem = new GoodsItem(good.title, good.price);
-        //   listHtml += goodItem.render();
-        // });
         document.querySelector('.goods-list').innerHTML = this.goods.map(item => new GoodsItem(item).render()).join("");
     }
 
-    // 2. Добавьте для GoodsList метод, определяющий суммарную стоимость всех товаров.
     calcSum() {
         let sum = 0;
         this.goods.forEach(({price}) => sum += price)
@@ -67,7 +88,27 @@ class GoodsList {
     }
 }
 
+// 1. Переделайте makeGETRequest() так, чтобы она использовала промисы.
+function makeGETRequest(url) {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest(); // мы тут взрослые, адекватные люди =) поддержку IE вообще обещают убрать с середины 2022, так что оставим так. ActiveX буду дежрать в голове.
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                resolve(xhr.responseText);
+            }
+        }
+
+        xhr.timeout = 15000;
+        xhr.ontimeout = () => {
+            reject('makeGETRequest_ERR');
+        }
+
+        xhr.open('GET', url, true);
+        xhr.send();
+    });
+}
+
 const list = new GoodsList();
-list.fetchGoods();
-list.render();
-list.calcSum();
+list.fetchGoods()
+    .then(() => list.render());

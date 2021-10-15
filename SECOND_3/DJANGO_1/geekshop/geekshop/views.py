@@ -1,30 +1,33 @@
-from django.conf import settings
-from django.shortcuts import render
 import json
+from django.conf import settings
+from django.http import HttpResponse, Http404
+from django.shortcuts import render
+from django.db.transaction import atomic
+
+from mainapp.models import Product
 
 
 def main(request):
+    products_list = Product.objects.all()[:3]
     context = {
         'title': 'магазин',
         'menu_links': [
             {'href': 'main', 'name': 'домой'},
-            {'href': 'products', 'name': 'продукты'},
+            {'href': 'products:index', 'name': 'продукты'},
             {'href': 'contacts', 'name': 'контакты'},
-        ]
+        ],
+        'products_list': products_list
     }
     return render(request, 'geekshop/index.html', context)
 
 
 def contacts(request):
-    # 4. Организовать вывод динамического контента на страницах (элементы меню, список товара, заголовок страницы).
-    # я вместо товара сделал контакты, они же для п.5:
-    # 5. *Организовать загрузку динамического контента в контроллеры с жесткого диска (например, в формате «json»).
 
     context = {
         'title': 'контакты',
         'menu_links': [
             {'href': 'main', 'name': 'домой'},
-            {'href': 'products', 'name': 'продукты'},
+            {'href': 'products:index', 'name': 'продукты'},
             {'href': 'contacts', 'name': 'контакты'},
         ],
         'contacts_data': [],
@@ -33,3 +36,26 @@ def contacts(request):
         contacts_data = json.loads(f_in.read())
         context['contacts_data'] = contacts_data
     return render(request, 'geekshop/contact.html', context)
+
+
+# для тестов http://127.0.0.1:8000/load_db_data/load_db_1.json
+def load_db_data(request, f_name=None):
+    # это вроде как тех. работа, поэтому пишу отдельную функцию для вывода, чтобы не переделывать __str__
+    def print_models(obj_list: list[Product]):
+        return f'loaded {len(file_data)} new object(s)\n\n' + '\n'.join(map(lambda x: f'[{x.pk}] {x.name} ({x.category.name})', obj_list))
+
+    file = settings.BASE_DIR / 'geekshop/json' / f_name
+    if file.exists():
+        with file.open(mode='r', encoding='utf-8') as f:
+            # тут я считаю, что инфа в файле валидна от слова совсем, чтобы не писать 100500 проверок
+            file_data = json.load(f)
+            new_ids = []
+            with atomic():  # если вдруг объектов много - чтоб быстрее работало
+                for item in file_data:
+                    new_product = Product(name=item['name'], category_id=item['category_id'])
+                    new_product.save()
+                    new_ids.append(new_product.pk)
+            new_objs = Product.objects.filter(pk__in=new_ids)
+        return HttpResponse(print_models(new_objs), content_type='application/json')  # content_type для более читабельного вида
+    else:
+        raise Http404()

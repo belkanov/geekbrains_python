@@ -3,47 +3,18 @@
 
 <head>
   <title>eShop</title>
-  <!--    /* Practice. Добавьте стили для верхнего меню, товара, списка товаров и кнопки вызова корзины.*/-->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <div id="app">
     <header>
-      <div>
-        <input type="text" v-model="searchLine">
-        <!-- по хорошему класс для кнопки надо другой сделать, но я не стал городить класс ради класса -->
-        <button class="cart-button" type="button" @click="filterGoods">Поиск</button>
-      </div>
+      <search-item></search-item>
       <button class="cart-button" type="button" @click="switchShowCart">Корзина</button>
-
     </header>
-    <div class="cart-list" v-show="isVisibleCart">
-      <h3>{{ cartTotal }}</h3>
-      <div class="cart-item" v-for="(good, idx) in cartGoods">
-        <h3>{{ good.product_name }}</h3>
-        <p>{{ good.price }}</p>
-        <p>
-          <span class="cart-list-sub" @click="cartGoodSub($event, idx)">- </span>
-          {{ good.count }}
-          <span class="cart-list-plus" @click="cartGoodPlus($event, idx)"> +</span>
-        </p>
-        <p>{{ good.total }}</p>
-      </div>
-    </div>
+      <cart-list :goods="cartGoods" :is-visible-cart="isVisibleCart" :total="cartTotal"></cart-list>
     <main>
-      <div class="goods-list">
-        <div class="goods-item" v-for="(good, idx) in filteredGoods">
-          <div v-if="good.id_product === -1">
-            <h3>Нет данных</h3>  
-          </div>
-          <div v-else>
-            <h3>{{ good.product_name }}</h3>
-            <p>{{ good.price }}</p>
-            <button @click="addToCart($event, idx)">В корзину</button>
-          </div>
-        </div>
-      </div>
+      <goods-list :goods="filteredGoods"></goods-list>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>

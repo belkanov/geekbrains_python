@@ -2,23 +2,23 @@
 <html>
 
 <head>
-  <title>eShop</title>
-  <link rel="stylesheet" href="style.css">
+    <title>eShop</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div id="app">
+<div id="app">
     <header>
-      <search-item></search-item>
-      <button class="cart-button" type="button" @click="switchShowCart">Корзина</button>
+        <search-item></search-item>
+        <cart-list :goods="cartGoods"></cart-list>
     </header>
-      <cart-list :goods="cartGoods" :is-visible-cart="isVisibleCart" :total="cartTotal"></cart-list>
     <main>
-      <goods-list :goods="filteredGoods"></goods-list>
+        <goods-list :goods="filteredGoods"></goods-list>
     </main>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-  <script src="script.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<!--<script type="module" src="script.js"></script>-->
+<script src="./dist/build.js"></script>
 </body>
 
 </html>

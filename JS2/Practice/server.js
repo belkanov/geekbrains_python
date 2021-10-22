@@ -49,6 +49,7 @@ const wtireLog = (productName, action) => {
 
 app.use(express.static('.'));
 app.use(express.json());
+// express.static.mime.define({'text/javascript': ['js', 'vue']});
 
 app.get('/catalogData', (req, res) => {
   log_print('GET /catalogData');

@@ -14,7 +14,7 @@ header {
     margin: 5px;
     padding: 5px;
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: row wrap;
     align-content: flex-end;
 }
 

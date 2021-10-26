@@ -1,5 +1,5 @@
-const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
-// const API_URL = 'http://127.0.0.1'; // для п.3 и вывода "нет данных"
+// const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+const API_URL = 'http://127.0.0.1:3000';
 
 Vue.component('goods-list', {
     props: ['goods'],
@@ -20,7 +20,6 @@ Vue.component('goods-item', {
       <div v-else>
         <h3>{{ good.product_name }}</h3>
         <p>{{ good.price }}</p>
-        <!--        <button @click="this.$root.addToCart($event, idx)">В корзину</button>-->
         <button @click="addToCart">В корзину</button>
       </div>
       </div>
@@ -32,9 +31,21 @@ Vue.component('goods-item', {
                 this.$root.cartGoods[cartIdx].count++;
                 this.$root.cartGoods[cartIdx].total += this.$root.cartGoods[cartIdx].price;
             } else {
-                this.$root.cartGoods.push({...this.good, count: 1, total: this.good.price})
+                const item = {...this.good, count: 1, total: this.good.price};
+                this.$root.makePOSTRequest('/addToCart', JSON.stringify(item))
+                  .then(rslt => {
+                      let r = JSON.parse(rslt);
+                      if (r.result === 1) {
+                          this.$root.cartGoods.push(item);
+                          this.$emit('calc-total');
+                      } else if (r.result === 0){
+                          alert(`Не получилось добавить "${item.product_name}" в корзину`);
+                      }
+                  }, err => {
+                      alert(err); // так конечно не круто делать =) просто заглушка
+                  });
             }
-            this.$emit('calc-total');
+
         }
     }
 });
@@ -70,20 +81,51 @@ Vue.component('cart-item', {
       </div>
     `,
     methods: {
+        update(id_product, count, total) {
+            this.$root.makePOSTRequest('/editCart', JSON.stringify({id_product:id_product, count:count, total:total}))
+                  .then(rslt => {
+                      const r = JSON.parse(rslt);
+                      if (r.result === 1) {
+                          this.good.count = count;
+                          this.good.total = total;
+                          this.$emit('calc-total');
+                      } else if (r.result === 0){
+                          alert(`Не получилось обновить "${item.product_name}" в корзине`);
+                      }
+                  }, err => {
+                      alert(err); // так конечно не круто делать =) просто заглушка
+                  });
+        },
+        delete(id_product) {
+            this.$root.makePOSTRequest('/delFromCart', JSON.stringify({id_product:id_product}))
+                  .then(rslt => {
+                      const r = JSON.parse(rslt);
+                      if (r.result === 1) {
+                          this.$root.cartGoods.splice(this.idx, 1);
+                          this.$emit('calc-total');
+                      } else if (r.result === 0){
+                          alert(`Не получилось удалить "${item.product_name}" из корзине`);
+                      }
+                  }, err => {
+                      alert(err); // так конечно не круто делать =) просто заглушка
+                  });
+        },
         goodSub() {
-            if (--this.good.count <= 0) {
-              this.$root.cartGoods.splice(this.idx, 1);
+            let {id_product, count, price, total} = this.good;
+            count--;
+            total -= price;
+
+            if (count <= 0) {
+                this.delete(id_product);
             } else {
-              this.good.total -= this.good.price;
+                this.update(id_product, count, total);
             }
-            console.log('call event...');
-            this.$emit('calc-total');
         },
         goodPlus() {
-            this.good.count++;
-            this.good.total += this.good.price;
-            console.log('call event...');
-            this.$emit('calc-total');
+            let {id_product, count, price, total} = this.good;
+            count++;
+            total += price;
+            this.update(id_product, count, total);
         }
     }
 });
@@ -124,33 +166,41 @@ const app = new Vue({
         isVisibleCart: false
     },
     methods: {
-        makeGETRequest(url) {
+        makeRequest(url, type, data=null) {
             return new Promise((resolve, reject) => {
-                let xhr = new XMLHttpRequest(); // мы тут взрослые, адекватные люди =) поддержку IE вообще обещают убрать с середины 2022, так что оставим так. ActiveX буду дежрать в голове.
+                let xhr = new XMLHttpRequest();
 
                 xhr.onreadystatechange = () => {
-                    // console.log(new Date(), xhr.readyState);
                     if (xhr.readyState === 4) {
                         if (xhr.status === 200) {
                             resolve(xhr.responseText);
                         } else {
-                            reject('makeGETRequest_ERR');
+                            reject(`make${type}Request_ERR`);
                         }
                     }
                 }
 
                 xhr.timeout = 15000;
                 xhr.ontimeout = () => {
-                    reject('makeGETRequest_ERR');
+                    reject(`make${type}Request_ERR`);
                 }
-
                 xhr.onerror = () => {
-                    reject('makeGETRequest_ERR');
+                    reject(`make${type}Request_ERR`);
                 }
 
-                xhr.open('GET', url, true);
-                xhr.send();
+                xhr.open(type, url, true);
+                if (type === 'POST') {
+                    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                }
+
+                xhr.send(data);
             });
+        },
+        makeGETRequest(url, data=null) {
+            return this.makeRequest(url, 'GET', data);
+        },
+        makePOSTRequest(url, data=null) {
+            return this.makeRequest(url, 'POST', data);
         },
         switchShowCart() {
             this.isVisibleCart = !this.isVisibleCart;
@@ -164,7 +214,7 @@ const app = new Vue({
         }
     },
     mounted() {
-        this.makeGETRequest(`${API_URL}/catalogData.json`)
+        this.makeGETRequest(`${API_URL}/catalogData`)
             .then(
                 goods => {
                     this.goods = JSON.parse(goods);

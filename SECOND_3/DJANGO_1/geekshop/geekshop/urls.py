@@ -23,9 +23,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', main, name='main'),
-    path('load_db_data/<str:f_name>', load_db_data),
     path('contacts/', contacts, name='contacts'),
     path('products/', include('mainapp.urls', namespace='products')),
+    path('auth/', include('authapp.urls', namespace='auth')),
+
+    path('load_db_data/<str:f_name>', load_db_data),
 ]
 
 if settings.DEBUG:

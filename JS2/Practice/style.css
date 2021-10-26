@@ -7,7 +7,15 @@ header {
     background-color: #2267B5;
     padding: 5px;
     display: flex;
-    justify-content: right;
+    justify-content: space-between;
+}
+
+.cart-list {
+    margin: 5px;
+    padding: 5px;
+    display: flex;
+    flex-flow: row wrap;
+    align-content: flex-end;
 }
 
 .cart-button {
@@ -32,13 +40,16 @@ header {
     top: 1px;
 }
 
+.cart-list-sub:hover, .cart-list-plus:hover {
+  cursor: pointer;
+}
 .goods-list {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
 }
 
-.goods-item {
+.goods-item, .cart-item {
     flex-basis: 20%;
     margin: 5px;
     padding: 15px;

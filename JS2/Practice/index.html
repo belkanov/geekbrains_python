@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>eShop</title>
-<!--    /* Practice. Добавьте стили для верхнего меню, товара, списка товаров и кнопки вызова корзины.*/-->
-  <link rel="stylesheet" href="style.css">
+    <title>eShop</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <header>
-    <button class="cart-button" type="button">Корзина</button>
-  </header>
-  <main>
-    <div class="goods-list"></div>
-  </main>
-  <script src="script.js"></script>
+<div id="app">
+    <header>
+        <search-item></search-item>
+        <cart-list :goods="cartGoods"></cart-list>
+    </header>
+    <main>
+        <goods-list :goods="filteredGoods"></goods-list>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<!--<script type="module" src="script.js"></script>-->
+<script src="./dist/build.js"></script>
 </body>
+
 </html>

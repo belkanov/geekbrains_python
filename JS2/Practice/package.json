@@ -1,0 +1,17 @@
+{
+  "name": "gb-js2",
+  "version": "1.0.0",
+  "description": "Geekbrains. Advanced JavaScript Course",
+  "main": "script.js",
+  "scripts": {
+    "buld dev": "webpack --mode=development",
+    "buld prod": "webpack --mode=production",
+    "buld prod watch": "webpack -w --mode=production"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.59.1",
+    "webpack-cli": "^4.9.1"
+  }
+}

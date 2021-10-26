@@ -1,23 +1,65 @@
-const goods = [
-  { title: 'Shirt', price: 150 },
-  { title: 'Socks', price: 50 },
-  { title: 'Jacket', price: 350 },
-  { title: 'Shoes', price: 250 },
-];
+import SearchItem from "./vue-comp/SearchItem.js";
+import CartList from "./vue-comp/CartList.js";
+import GoodsList from "./vue-comp/GoodsList.js";
 
-// 2. Добавьте значения по умолчанию для аргументов функции. Как можно упростить или сократить запись функций?
-// const renderGoodsItem = (title, price) => {
-//   return `<div class="goods-item"><h3>${title}</h3><p>${price}</p></div>`;
-// };
-const renderGoodsItem = (title = "Название", price = 0) =>  `<div class="goods-item"><h3>${title}</h3><p>${price}</p></div>`;
+// const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+const API_URL = 'http://127.0.0.1:3000';
 
+new Vue({
+  el: '#app',
+  data: {
+    goods: [],
+    filteredGoods: [],
+    cartGoods: []
+  },
+  components: {
+    SearchItem, CartList, GoodsList
+  },
+  methods: {
+    makeRequest(url, type, data = null) {
+      return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
 
-const renderGoodsList = (list) => {
-  // 3. *Сейчас после каждого товара на странице выводится запятая. Из-за чего это происходит? Как это исправить?
-  //
-  // запятая добавлялась из-за того, что массив при преобразовании в строку автоматически добавляет зпт как разделитель
-  // исправляем через join:
-  document.querySelector('.goods-list').innerHTML = list.map(item => renderGoodsItem(item.title, item.price)).join("");
-}
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              resolve(xhr.responseText);
+            } else {
+              reject(`make${type}Request_ERR`);
+            }
+          }
+        }
 
-renderGoodsList(goods);
+        xhr.timeout = 15000;
+        xhr.ontimeout = () => {
+          reject(`make${type}Request_ERR`);
+        }
+        xhr.onerror = () => {
+          reject(`make${type}Request_ERR`);
+        }
+
+        xhr.open(type, url, true);
+        if (type === 'POST') {
+          xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+        }
+
+        xhr.send(data);
+      });
+    },
+    makeGETRequest(url, data = null) {
+      return this.makeRequest(url, 'GET', data);
+    },
+    makePOSTRequest(url, data = null) {
+      return this.makeRequest(url, 'POST', data);
+    },
+  },
+  mounted() {
+    this.makeGETRequest(`${API_URL}/catalogData`)
+      .then(
+        goods => {
+          this.goods = JSON.parse(goods);
+          this.filteredGoods = JSON.parse(goods);
+        }
+        , error => this.filteredGoods = [{id_product: -1}]);
+  }
+});

@@ -1,31 +1,18 @@
 {% extends 'geekshop/base.html' %}
 {% load static %}
-{% load %}
 
 {% block content %}
     <div class="hero-white">
         {% include 'geekshop/includes/menu.html' %}
     </div>
     <div class="details">
-        <div class="links clearfix">
-            <ul class="links-menu">
-                <li><a href="{% url 'mainapp:index' as url_1 %}{{ url_1 }}" class="{% if request.path == url_1 %}active{% endif %}">все</a></li>
-                {% for category in product_categories %}
-                    <li><a href="{% url 'mainapp:category' pk=category.id as url_2 %}{{ url_2 }}" class="{% if request.path == url_2 %}active{% endif %}">{{ category.name }}</a>
-                    </li>
-                {% endfor %}
-                {#                <li><a href="#">дом</a></li>#}
-                {#                <li><a href="#">офис</a></li>#}
-                {#                <li><a href="#">модерн</a></li>#}
-                {#                <li><a href="#">классика</a></li>#}
-            </ul>
-        </div>
+        {% include 'mainapp/includes/links_menu.html' %}
 
         <div class="details-products">
-            {% for product in products_data %}
+            {% for product in products %}
                 <div class="details-slider">
                     <div class="slider-product">
-                        <img src="{{ product.image.url }}">
+                        <img src="{{ product.get_image }}">
                     </div>
                     {# слайдер решил отключить - делается по аналогии выше, а с учетом отсутствия картинок в моей бд - портит общее впечатление =) #}
                     {#                <div class="slider-control">#}
@@ -52,7 +39,7 @@
                     <h3 class="big-bold">{{ product.short_desc }}</h3>
                     <h3 class="red">горячее предложение</h3> {# это можно включать по какому-нибудь флагу в бд. решил оставить #}
                     <p class="price"> {{ product.price }} <span>руб</span></p>
-                    <a href="#" class="red-button">заказать <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+                    <a href="{% url 'basket:add' product.pk %}" class="red-button">заказать <i class="fa fa-chevron-right" ></i></a>
                     <div class="description-text">
                         <p>{{ product.description }}</p>
                     </div>

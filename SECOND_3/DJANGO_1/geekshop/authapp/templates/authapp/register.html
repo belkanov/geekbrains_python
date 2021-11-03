@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-    <form action="{% url 'authapp:register' %}" class="dorm-horizontal" method="post" enctype="multipart/form-data">
+    <form action="{% url 'auth:register' %}" class="dorm-horizontal" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ register_form.as_p }}
         <br>

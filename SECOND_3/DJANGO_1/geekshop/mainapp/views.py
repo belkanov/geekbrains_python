@@ -1,26 +1,39 @@
 from django.shortcuts import render
+
+from basketapp.models import Basket
 from .models import Product, ProductCategory
 
 
 # Create your views here.
-def products(requset, pk=None):
-    product_categories = ProductCategory.objects.all()
-    products_data = Product.objects.all()
+def category(request, pk=0):
+    title = "каталог"
+
+    basket_str = ''
+    if request.user.is_authenticated:
+        basket_str = Basket.get_short_view_str(user=request.user)
+
+    links_menu = ProductCategory.objects.all()
+    products = Product.objects.all()
     if pk:
-        products_data = products_data.filter(category_id=pk)
+        if ProductCategory.objects.filter(pk=pk).exists():
+            products = products.filter(category_id=pk)
+        else:
+            pk = 0
     else:
         # чтоб не вываливать все продукты разом (вдруг их 1к+), если перейдем на категорию "все".
         # сюда можно еще какойнить рандом добавить или других плюх, разнообразия ради
-        products_data = products_data[:3]
+        products = products[:3]
 
     context = {
-        'title': 'каталог',
+        'title': title,
+        'links_menu': links_menu,
         'menu_links': [
             {'href': 'main', 'name': 'домой'},
-            {'href': 'products:index', 'name': 'продукты'},
+            {'href': 'categories:category', 'name': 'продукты'},
             {'href': 'contacts', 'name': 'контакты'},
         ],
-        'product_categories': product_categories,
-        'products_data': products_data,
+        # 'categories': categories,
+        'products': products,
+        'basket_str': basket_str,
     }
-    return render(requset, 'mainapp/products.html', context)
+    return render(request, 'mainapp/category.html', context)

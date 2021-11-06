@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>
         {% block title %}
-            {{ title|title }} {# 3. Поработать с шаблонными тегами и фильтрами (заглавные буквы, вывод текущей даты в шаблоне). #}
+            {{ title|title }}
         {% endblock %}
     </title>
     {% block css %}
@@ -46,6 +46,9 @@
     </div>
     <p class="small">Положения &amp; Условия / Конфиденциальность &amp; Cookies</p>
 </div>
-
+{% block js %}
+    <!-- версия толстая (600+ кб) и в прод я такую не потяну =) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.21/dist/vue.global.js"></script>
+{% endblock %}
 </body>
 </html>

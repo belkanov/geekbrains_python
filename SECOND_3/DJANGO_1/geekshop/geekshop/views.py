@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.db.transaction import atomic
+from django.urls import reverse
 
 from basketapp.models import Basket
 from mainapp.models import Product
@@ -17,9 +18,9 @@ def main(request):
     context = {
         'title': 'магазин',
         'menu_links': [
-            {'href': 'main', 'name': 'домой'},
-            {'href': 'categories:category', 'name': 'продукты'},
-            {'href': 'contacts', 'name': 'контакты'},
+            {'href': reverse('main'), 'name': 'домой'},
+            {'href': reverse('categories:category'), 'name': 'продукты'},
+            {'href': reverse('contacts'), 'name': 'контакты'},
         ],
         'products_list': products_list,
         'basket_str': basket_str,
@@ -35,9 +36,9 @@ def contacts(request):
     context = {
         'title': 'контакты',
         'menu_links': [
-            {'href': 'main', 'name': 'домой'},
-            {'href': 'categories:category', 'name': 'продукты'},
-            {'href': 'contacts', 'name': 'контакты'},
+            {'href': reverse('main'), 'name': 'домой'},
+            {'href': reverse('categories:category'), 'name': 'продукты'},
+            {'href': reverse('contacts'), 'name': 'контакты'},
         ],
         'contacts_data': [],
         'basket_str': basket_str,

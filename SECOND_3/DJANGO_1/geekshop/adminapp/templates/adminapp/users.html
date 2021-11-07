@@ -1,0 +1,95 @@
+{% extends 'adminapp/base.html' %}
+{% load static %}
+
+{% block content %}
+  <!-- Main content -->
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            {#            <div class="card-header">#}
+            {#              <h3 class="card-title">Bordered Table</h3>#}
+            {#            </div>#}
+            <!-- /.card-header -->
+            <div class="card-body">
+              <table class="table table-bordered">
+                <thead>
+                <tr>
+                  <th style="width: 10px">#</th>
+                  <th style="width: 20px">Avatar</th>
+                  <th>Username</th>
+                  <th>e-mail</th>
+                  <th>Firstname</th>
+                  <th>Lastname</th>
+                  <th style="width: 40px">Active</th>
+                  <th style="width: 40px">Admin</th>
+                  <th style="width: 40px">Stuff</th>
+                  <th style="width: 40px">Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="100%"><a href="{% url 'adminka:user_create' %}">Создать</a></td>
+                </tr>
+                {% for obj in users_list %}
+                  <tr {% if not obj.is_active %}class="opacity-50"{% endif %}>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <div class="user-panel">
+{#                        <img src="{{ obj.get_avatar }}" class="img-circle elevation-2" alt="User Image">#}
+                        {{ obj.get_avatar|safe }}
+                      </div>
+                    </td>
+                    <td><a href="{% url 'adminka:user_update' obj.pk %}">{{ obj.username }}</a></td>
+                    <td>{{ obj.email }}</td>
+                    <td>{{ obj.first_name }}</td>
+                    <td>{{ obj.last_name }}</td>
+                    <td>
+                      {% if obj.is_active %}
+                        <i class="fas fa-check-circle"></i>
+                      {% else %}
+                        <i class="fas fa-times-circle"></i>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if obj.is_superuser %}
+                        <i class="fas fa-check-circle"></i>
+                      {% else %}
+                        <i class="fas fa-times-circle"></i>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if obj.is_staff %}
+                        <i class="fas fa-check-circle"></i>
+                      {% else %}
+                        <i class="fas fa-times-circle"></i>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <a href="{% url 'adminka:user_delete' obj.pk %}"><i class="fas fa-times-circle" style="color: Tomato;"></i></a>
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- /.card-body -->
+            {#            <div class="card-footer clearfix">#}
+            {#              <ul class="pagination pagination-sm m-0 float-right">#}
+            {#                <li class="page-item"><a class="page-link" href="#">«</a></li>#}
+            {#                <li class="page-item"><a class="page-link" href="#">1</a></li>#}
+            {#                <li class="page-item"><a class="page-link" href="#">2</a></li>#}
+            {#                <li class="page-item"><a class="page-link" href="#">3</a></li>#}
+            {#                <li class="page-item"><a class="page-link" href="#">»</a></li>#}
+            {#              </ul>#}
+            {#          </div>#}
+          </div>
+        </div>
+        <!-- /.col-md-6 -->
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content -->
+{% endblock %}

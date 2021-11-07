@@ -12,6 +12,10 @@ class ProductCategory(models.Model):
         verbose_name='описание',
         blank=True
     )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='active'
+    )
 
     def __str__(self):
         return self.name
@@ -48,6 +52,10 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(
         verbose_name='количество на складе',
         default=0
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='active'
     )
 
     def __str__(self):

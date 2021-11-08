@@ -42,17 +42,20 @@
                 {% endfor %}
                 </tbody>
               </table>
+
             </div>
             <!-- /.card-body -->
-            {#            <div class="card-footer clearfix">#}
-            {#              <ul class="pagination pagination-sm m-0 float-right">#}
-            {#                <li class="page-item"><a class="page-link" href="#">«</a></li>#}
-            {#                <li class="page-item"><a class="page-link" href="#">1</a></li>#}
-            {#                <li class="page-item"><a class="page-link" href="#">2</a></li>#}
-            {#                <li class="page-item"><a class="page-link" href="#">3</a></li>#}
-            {#                <li class="page-item"><a class="page-link" href="#">»</a></li>#}
-            {#              </ul>#}
-            {#          </div>#}
+            <div class="card-footer clearfix">
+              <ul class="pagination pagination-sm m-0 float-right">
+                {% if products_list.has_previous %}
+                  <li class="page-item"><a class="page-link" href="{% url 'adminka:products_read' 0 products_list.previous_page_number %}">«</a></li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" href="#">{{ products_list.number }}/{{ products_list.paginator.num_pages }}</a></li>
+                {% if products_list.has_next %}
+                  <li class="page-item"><a class="page-link" href="{% url 'adminka:products_read' 0 products_list.next_page_number %}">»</a></li>
+                {% endif %}
+              </ul>
+            </div>
           </div>
         </div>
         <!-- /.col-md-6 -->

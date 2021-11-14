@@ -4,37 +4,49 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.db.transaction import atomic
 
+from basketapp.models import Basket
 from mainapp.models import Product
 
 
 def main(request):
     products_list = Product.objects.all()[:3]
+    basket_str = ''
+    if request.user.is_authenticated:
+        basket_str = Basket.get_short_view_str(user=request.user)
+
     context = {
         'title': 'магазин',
         'menu_links': [
             {'href': 'main', 'name': 'домой'},
-            {'href': 'products:index', 'name': 'продукты'},
+            {'href': 'categories:category', 'name': 'продукты'},
             {'href': 'contacts', 'name': 'контакты'},
         ],
-        'products_list': products_list
+        'products_list': products_list,
+        'basket_str': basket_str,
     }
     return render(request, 'geekshop/index.html', context)
 
 
 def contacts(request):
+    basket_str = ''
+    if request.user.is_authenticated:
+        basket_str = Basket.get_short_view_str(user=request.user)
 
     context = {
         'title': 'контакты',
         'menu_links': [
             {'href': 'main', 'name': 'домой'},
-            {'href': 'products:index', 'name': 'продукты'},
+            {'href': 'categories:category', 'name': 'продукты'},
             {'href': 'contacts', 'name': 'контакты'},
         ],
         'contacts_data': [],
+        'basket_str': basket_str,
     }
+
     with open(settings.BASE_DIR / 'geekshop/json/contacts_data.json', mode='r', encoding='utf-8') as f_in:
         contacts_data = json.loads(f_in.read())
         context['contacts_data'] = contacts_data
+
     return render(request, 'geekshop/contact.html', context)
 
 

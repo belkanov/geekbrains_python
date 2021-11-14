@@ -66,7 +66,7 @@ class ShopUser(AbstractUser):
 
     def get_avatar(self):
         if self.avatar:
-            return Path(settings.MEDIA_URL / self.avatar)
+            return self.avatar.url
         else:
             # return 'default-avatar'
             return ''

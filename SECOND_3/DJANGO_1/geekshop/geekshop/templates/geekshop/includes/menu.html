@@ -6,17 +6,20 @@
         {% endfor %}
         {% if user.is_authenticated %}
             <li>
-                <a href="{% url 'authapp:edit' %}">{{ user.first_name|default:'Пользователь' }}</a>
+                <a href="{% url 'auth:edit' %}">{{ user.first_name|default:'Пользователь' }}</a>
             </li>
         {% endif %}
         <li>
             {% if user.is_authenticated %}
-                <a href="{% url 'authapp:logout' %}">выйти</a>
+                <a href="{% url 'auth:logout' %}">выйти</a>
             {% else %}
-                <a href="{% url 'authapp:login' %}">войти</a>
+                <a href="{% url 'auth:login' %}">войти</a>
             {% endif %}
+        </li>
+        <li>
+            <a href="{% url 'basket:view' %}"><b>{% if basket_str %}{{ basket_str }}{% endif %}</b></a>
         </li>
     </ul>
     <a href="#" class="search"></a>
-    <a href="#" class="basket"></a>
+
 </div>

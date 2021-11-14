@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="user-avatar"><img src="{{ user.get_avatar }}" alt="user-avatar"></div>
-    <form action="{% url 'authapp:edit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
+    <form action="{% url 'auth:edit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ edit_form.as_p }}
         <input type="submit" class="form-control" value="сохранить">

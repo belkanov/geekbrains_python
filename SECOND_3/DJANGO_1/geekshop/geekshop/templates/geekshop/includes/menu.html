@@ -1,0 +1,10 @@
+<div class="header clearfix">
+    <a href="{% url menu_links.0.href %}" class="logo"></a> {# само собой сломается, елси поменяем порядок ссылок. Пока не придумал вариант, который меня полностью устроит #}
+    <ul class="menu">
+        {% for link in menu_links %}
+            <li><a href="{% url link.href %}" class="{% if request.resolver_match.url_name == link.href %}active{% endif %}">{{ link.name }}</a></li> {# 2. Реализовать в проекте механизмы работы со статическими файлами и URL-адресами, которые прошли на уроке. #}
+        {% endfor %}
+    </ul>
+    <a href="#" class="search"></a>
+    <a href="#" class="basket"></a>
+</div>

@@ -26,7 +26,7 @@
                 <tr>
                   <td colspan="100%"><a href="{% url 'adminka:category_create' %}">Создать</a></td>
                 </tr>
-                {% for obj in categories_list %}
+                {% for obj in object_list %}
                   <tr {% if not obj.is_active %}class="opacity-50"{% endif %}>
                     <td>{{ obj.id }}</td>
                     <td><a href="{% url 'adminka:category_update' obj.id %}">{{ obj.name }}</a></td>

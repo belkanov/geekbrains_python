@@ -25,7 +25,7 @@ class Command(BaseCommand):
         products = load_from_json('products.json')
         Product.objects.all().delete()
         for product in products:
-            _category = ProductCategory.objects.get(name=product['category'])
+            _category = ProductCategory.objects.get(id=product['category'])
             product['category'] = _category
             new_product = Product(**product)
             new_product.save()

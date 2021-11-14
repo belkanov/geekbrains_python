@@ -52,11 +52,30 @@ def validate_age(value):
 # python manage.py migrate
 #
 # -- https://www.caktusgroup.com/blog/2019/04/26/how-switch-custom-django-user-model-mid-project/
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# UPD: как выяснилось - метод не очень..
+# как минимум в таблицах вида
+# <APP>_<NewUserModel>_groups (authapp_shopuser_groups)
+# <APP>_<NewUserModel>_user_permissions (authapp_shopuser_user_permissions)
+# надо поле user_id поменять на
+# <newusermodel>_id (shopuser_id)
+# иначе при создании форм и выборе всех полей (fields = '__all__') будет ошибка из-за отсутсвующего поля в бд
+# (ссылаться будет на новое, а в бд - старое)
+#
+# еще в django_content_type апдейт выше (SET app_label) - не нужен.
+# Записей с моделью 'user' вообще не должно быть:
+# auth,user -> <APP>,<newusermodel> (authapp,shopuser)
+#
+# возможно это все отличия, но это не точно =)
+# не стал ковырять и дропнул миграции
+
 
 class ShopUser(AbstractUser):
     age = models.PositiveIntegerField(
         verbose_name='возраст',
         null=True,
+        blank=True,
         validators=[validate_age]
     )
     avatar = models.ImageField(
@@ -66,9 +85,10 @@ class ShopUser(AbstractUser):
 
     def get_avatar(self):
         if self.avatar:
-            return self.avatar.url
+            # return self.avatar.url
+            return f'<img src="{self.avatar.url}" class="img-circle elevation-2" alt="User Image">'
         else:
             # return 'default-avatar'
-            return ''
+            return '<i class="fas fa-user fa-2x"></i>'
 
 

@@ -21,6 +21,7 @@ from .views import main, contacts, load_db_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('adminka/', include('adminapp.urls', namespace='adminka')),
 
     path('', main, name='main'),
     path('contacts/', contacts, name='contacts'),

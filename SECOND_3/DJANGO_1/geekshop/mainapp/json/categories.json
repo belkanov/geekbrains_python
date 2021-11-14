@@ -1,25 +1,17 @@
+[
   {
-    "model": "mainapp.productcategory",
     "pk": 1,
-    "fields": {
-      "name": "Категория 1",
-      "description": "description 1"
-    }
+    "name": "Категория 1",
+    "description": "description 1"
   },
   {
-    "model": "mainapp.productcategory",
     "pk": 2,
-    "fields": {
-      "name": "Категория 2",
-      "description": "description 2"
-    }
+    "name": "Категория 2",
+    "description": "description 2"
   },
   {
-    "model": "mainapp.productcategory",
     "pk": 3,
-    "fields": {
-      "name": "Категория 3",
-      "description": "description 3"
-    }
+    "name": "Категория 3",
+    "description": "description 3"
   }
 ]

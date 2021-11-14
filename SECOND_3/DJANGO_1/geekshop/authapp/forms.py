@@ -42,7 +42,7 @@ class ShopUserChangeForm(UserChangeForm):
         fields = ['username', 'first_name', 'email', 'age', 'avatar', 'password']
 
     def __init__(self, *args, **kwargs):
-        super(ShopUserChangeForm, self).__init__(*args, **kwargs)
+        super(UserChangeForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
             field.help_text = ''

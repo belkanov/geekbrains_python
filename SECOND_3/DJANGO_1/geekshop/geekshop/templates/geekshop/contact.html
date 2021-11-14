@@ -1,0 +1,29 @@
+{% extends 'geekshop/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="hero">
+        {% include 'geekshop/includes/menu.html' %}
+        <h1>наши контакты</h1>
+    </div>
+    <div class="location">
+        {% for contact in contacts_data %}
+        <div class="location-1">
+            <i class="fa fa-map-marker fa-5x"></i>
+            <h4>{{ contact.city }}</h4>
+            <div class="contacts">
+                <h5>Телефон</h5>
+                <p>{{ contact.tel }}</p>
+            </div>
+            <div class="contacts">
+                <h5>Email</h5>
+                <p>{{ contact.email }}</p>
+            </div>
+            <div class="contacts">
+                <h5>Адрес</h5>
+                <p>{{ contact.addr }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

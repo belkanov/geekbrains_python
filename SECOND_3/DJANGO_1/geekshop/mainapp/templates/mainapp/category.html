@@ -1,0 +1,98 @@
+{% extends 'geekshop/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="hero-white">
+        {% include 'geekshop/includes/menu.html' %}
+    </div>
+    <div class="details">
+        {% include 'mainapp/includes/links_menu.html' %}
+
+        <div class="details-products">
+            <div>
+              <ul class="pagination pagination-sm m-0 float-right">
+                {% if products.has_previous %}
+                  <li class="page-item"><a class="page-link" href="{% url 'categories:category' 0 products.previous_page_number %}">«</a></li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" href="#">{{ products.number }}/{{ products.paginator.num_pages }}</a></li>
+                {% if products.has_next %}
+                  <li class="page-item"><a class="page-link" href="{% url 'categories:category' 0 products.next_page_number %}">»</a></li>
+                {% endif %}
+              </ul>
+            </div>
+            {% for product in products %}
+                <div class="details-slider">
+                    <div class="slider-product">
+                        <a href="{% url 'categories:product' product.pk %}"><img src="{{ product.get_image }}"></a>
+                    </div>
+                    {# слайдер решил отключить - делается по аналогии выше, а с учетом отсутствия картинок в моей бд - портит общее впечатление =) #}
+                    {#                <div class="slider-control">#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll1.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll2.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                </div>#}
+                </div>
+
+
+                <div class="description">
+                    <h3 class="big-bold">{{ product.short_desc }}</h3>
+                    <h3 class="red">горячее предложение</h3> {# это можно включать по какому-нибудь флагу в бд. решил оставить #}
+                    <p class="price"> {{ product.price }} <span>руб</span></p>
+                    <a href="{% url 'categories:product' product.pk %}" class="red-button">заказать <i class="fa fa-chevron-right" ></i></a>
+                    <div class="description-text">
+                        <p>{{ product.description }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="related">
+            <div class="title clearfix">
+                <h2>Похожие продукты</h2>
+                <a class="explore" href="#">показать все <img src="{% static '/geekshop/img/arrow.png' %}" alt=""></a>
+            </div>
+            <div class="related-products clearfix">
+                <div class="block">
+                    <a href="#"><img src="{% static '/geekshop/img/product-11.jpg' %}" alt="">
+                        <div class="text">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
+                            <h4>Стул повышенного качества</h4>
+                            <p>Не оторваться. </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="block">
+                    <a href="#"><img src="{% static '/geekshop/img/product-21.jpg' %}" alt="">
+                        <div class="text">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
+                            <h4>Стул повышенного качества</h4>
+                            <p>Не оторваться. </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="block">
+                    <a href="#"><img src="{% static '/geekshop/img/product-31.jpg' %}" alt="">
+                        <div class="text">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
+                            <h4>Стул повышенного качества</h4>
+                            <p>Не оторваться. </p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

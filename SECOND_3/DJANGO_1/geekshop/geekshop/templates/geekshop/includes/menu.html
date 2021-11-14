@@ -1,0 +1,29 @@
+<div class="header clearfix">
+  <a href="{{ menu_links.0.href }}" class="logo"></a> {# само собой сломается, елси поменяем порядок ссылок. Пока не придумал вариант, который меня полностью устроит #}
+  <ul class="menu">
+    {% for link in menu_links %}
+      <li><a href="{{ link.href }}" class="{% if request.path == link.href %}active{% endif %}">{{ link.name }}</a></li>
+      {# 2. Реализовать в проекте механизмы работы со статическими файлами и URL-адресами, которые прошли на уроке. #}
+    {% endfor %}
+    {% if user.is_authenticated %}
+      <li>
+        <a href="{% url 'auth:edit' %}">{{ user.first_name|default:'Пользователь' }}</a>
+      </li>
+    {% endif %}
+    <li>
+      {% if user.is_authenticated %}
+        <a href="{% url 'auth:logout' %}">выйти</a>
+      {% else %}
+        <a href="{% url 'auth:login' %}">войти</a>
+      {% endif %}
+    </li>
+    <li>
+      <a href="{% url 'basket:view' %}"><b>{% if basket_str %}{{ basket_str }}{% endif %}</b></a>
+    </li>
+    <li>
+      <a href="{% url 'adminka:user_read' %}">админка</a>
+    </li>
+  </ul>
+  <a href="#" class="search"></a>
+
+</div>

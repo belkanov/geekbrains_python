@@ -1,0 +1,102 @@
+[
+  {
+    "pk": 1,
+    "category": 1,
+    "name": "Продукт 1 1",
+    "image": "products_images/product-1.jpg",
+    "short_desc": "short desc 1",
+    "description": "description 1",
+    "price": "10.00",
+    "quantity": 4
+  },
+  {
+    "pk": 2,
+    "category": 1,
+    "name": "Продукт 1 2",
+    "image": "products_images/product-2.jpg",
+    "short_desc": "short desc 2",
+    "description": "description 2",
+    "price": "11.00",
+    "quantity": 23
+  },
+  {
+    "pk": 3,
+    "category": 2,
+    "name": "Продукт 2 1",
+    "image": "products_images/product-3.jpg",
+    "short_desc": "short desc 3",
+    "description": "description 3",
+    "price": "21.00",
+    "quantity": 2
+  },
+  {
+    "pk": 4,
+    "category": 3,
+    "name": "Продукт 3 1",
+    "image": "products_images/product-4.jpg",
+    "short_desc": "short desc 4",
+    "description": "description 4",
+    "price": "555.00",
+    "quantity": 10
+  },
+  {
+    "pk": 38,
+    "category": 3,
+    "name": "load name 1",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  },
+  {
+    "pk": 39,
+    "category": 3,
+    "name": "load name 2",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  },
+  {
+    "pk": 40,
+    "category": 3,
+    "name": "load name 3",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  },
+  {
+    "pk": 41,
+    "category": 3,
+    "name": "load name 1",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  },
+  {
+    "pk": 42,
+    "category": 3,
+    "name": "load name 2",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  },
+  {
+    "pk": 43,
+    "category": 3,
+    "name": "load name 3",
+    "image": "",
+    "short_desc": "",
+    "description": "",
+    "price": "0.00",
+    "quantity": 0
+  }
+]

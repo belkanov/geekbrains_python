@@ -1,5 +1,6 @@
 {% extends 'geekshop/base.html' %}
 {% load static %}
+{% load %}
 
 {% block content %}
     <div class="hero-white">
@@ -8,84 +9,85 @@
     <div class="details">
         <div class="links clearfix">
             <ul class="links-menu">
-                <li><a href="#" class="active">все</a></li>
-                <li><a href="#">дом</a></li>
-                <li><a href="#">офис</a></li>
-                <li><a href="#">модерн</a></li>
-                <li><a href="#">классика</a></li>
+                <li><a href="{% url 'mainapp:index' as url_1 %}{{ url_1 }}" class="{% if request.path == url_1 %}active{% endif %}">все</a></li>
+                {% for category in product_categories %}
+                    <li><a href="{% url 'mainapp:category' pk=category.id as url_2 %}{{ url_2 }}" class="{% if request.path == url_2 %}active{% endif %}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+                {#                <li><a href="#">дом</a></li>#}
+                {#                <li><a href="#">офис</a></li>#}
+                {#                <li><a href="#">модерн</a></li>#}
+                {#                <li><a href="#">классика</a></li>#}
             </ul>
         </div>
 
         <div class="details-products">
-            <div class="details-slider">
-                <div class="slider-product">
-                    <img src="/static/geekshop/img/slider1.jpg">
+            {% for product in products_data %}
+                <div class="details-slider">
+                    <div class="slider-product">
+                        <img src="{{ product.image.url }}">
+                    </div>
+                    {# слайдер решил отключить - делается по аналогии выше, а с учетом отсутствия картинок в моей бд - портит общее впечатление =) #}
+                    {#                <div class="slider-control">#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll1.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                    <div class="block">#}
+                    {#                        <a href="#"><img src="{% static '/geekshop/img/controll2.jpg' %}" alt="">#}
+                    {#                            <div class="text"></div>#}
+                    {#                        </a>#}
+                    {#                    </div>#}
+                    {#                </div>#}
                 </div>
-                <div class="slider-control">
-                    <div class="block">
-                        <a href="#"><img src="/static/geekshop/img/controll.jpg" alt="">
-                            <div class="text"></div>
-                        </a>
-                    </div>
-                    <div class="block">
-                        <a href="#"><img src="/static/geekshop/img/controll1.jpg" alt="">
-                            <div class="text"></div>
-                        </a>
-                    </div>
-                    <div class="block">
-                        <a href="#"><img src="/static/geekshop/img/controll2.jpg" alt="">
-                            <div class="text"></div>
-                        </a>
-                    </div>
-                </div>
-            </div>
 
-            <div class="description">
-                <h3 class="big-bold">Отличный стул</h3>
-                <h3 class="red">горячее предложение</h3>
-                <p class="price"> 2585.9 <span>руб</span></p>
-                <a href="#" class="red-button">
-                    заказать <i class="fa fa-chevron-right" aria-hidden="true"></i>
-                </a>
-                <div class="description-text">
-                    <p>Расположитесь комфортно.</p>
-                    <p>Отличное качество материалов
-                        позволит вам это.</p>
-                    <p>Различные цвета</p>
-                    <p>высочайший уровень
-                        эргономики и прочность.</p>
+
+                <div class="description">
+                    <h3 class="big-bold">{{ product.short_desc }}</h3>
+                    <h3 class="red">горячее предложение</h3> {# это можно включать по какому-нибудь флагу в бд. решил оставить #}
+                    <p class="price"> {{ product.price }} <span>руб</span></p>
+                    <a href="#" class="red-button">заказать <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+                    <div class="description-text">
+                        <p>{{ product.description }}</p>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
 
         <div class="related">
             <div class="title clearfix">
                 <h2>Похожие продукты</h2>
-                <a class="explore" href="#">показать все <img src="/static/geekshop/img/arrow.png" alt=""></a>
+                <a class="explore" href="#">показать все <img src="{% static '/geekshop/img/arrow.png' %}" alt=""></a>
             </div>
             <div class="related-products clearfix">
                 <div class="block">
-                    <a href="#"><img src="/static/geekshop/img/product-11.jpg" alt="">
+                    <a href="#"><img src="{% static '/geekshop/img/product-11.jpg' %}" alt="">
                         <div class="text">
-                            <img src="/static/geekshop/img/icon-hover.png" alt="img">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
                             <h4>Стул повышенного качества</h4>
                             <p>Не оторваться. </p>
                         </div>
                     </a>
                 </div>
                 <div class="block">
-                    <a href="#"><img src="/static/geekshop/img/product-21.jpg" alt="">
+                    <a href="#"><img src="{% static '/geekshop/img/product-21.jpg' %}" alt="">
                         <div class="text">
-                            <img src="/static/geekshop/img/icon-hover.png" alt="img">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
                             <h4>Стул повышенного качества</h4>
                             <p>Не оторваться. </p>
                         </div>
                     </a>
                 </div>
                 <div class="block">
-                    <a href="#"><img src="/static/geekshop/img/product-31.jpg" alt="">
+                    <a href="#"><img src="{% static '/geekshop/img/product-31.jpg' %}" alt="">
                         <div class="text">
-                            <img src="/static/geekshop/img/icon-hover.png" alt="img">
+                            <img src="{% static '/geekshop/img/icon-hover.png' %}" alt="img">
                             <h4>Стул повышенного качества</h4>
                             <p>Не оторваться. </p>
                         </div>

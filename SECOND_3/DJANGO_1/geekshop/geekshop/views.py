@@ -11,9 +11,6 @@ from mainapp.models import Product
 
 def main(request):
     products_list = Product.objects.all()[:3]
-    basket_str = ''
-    if request.user.is_authenticated:
-        basket_str = Basket.get_short_view_str(user=request.user)
 
     context = {
         'title': 'магазин',
@@ -23,15 +20,11 @@ def main(request):
             {'href': reverse('contacts'), 'name': 'контакты'},
         ],
         'products_list': products_list,
-        'basket_str': basket_str,
     }
     return render(request, 'geekshop/index.html', context)
 
 
 def contacts(request):
-    basket_str = ''
-    if request.user.is_authenticated:
-        basket_str = Basket.get_short_view_str(user=request.user)
 
     context = {
         'title': 'контакты',
@@ -41,7 +34,6 @@ def contacts(request):
             {'href': reverse('contacts'), 'name': 'контакты'},
         ],
         'contacts_data': [],
-        'basket_str': basket_str,
     }
 
     with open(settings.BASE_DIR / 'geekshop/json/contacts_data.json', mode='r', encoding='utf-8') as f_in:

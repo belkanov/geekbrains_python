@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, ValidationError, UserChangeForm
 from django import forms
-
+import random, hashlib
 from .models import ShopUser
 
 
@@ -26,14 +26,14 @@ class ShopUserRegisterForm(UserCreationForm):
             field.widget.attrs['class'] = 'form-control'
             field.help_text = ''
 
-    # я сделал валидатор в модели
-    #
-    # def clean_age(self):
-    #     data = self.cleaned_data['age']
-    #     if data < 18:
-    #         raise ValidationError('Надо подрасти =) 18+')
-    #
-    #     return data
+    def save(self, commit=True):
+        user = super(ShopUserRegisterForm, self).save(commit=False)
+        user.is_active = False
+        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
+        user.activation_key = hashlib.sha1(str(user.email + salt).encode('utf8')).hexdigest()
+        if commit:
+            user.save()
+        return user
 
 
 class ShopUserChangeForm(UserChangeForm):

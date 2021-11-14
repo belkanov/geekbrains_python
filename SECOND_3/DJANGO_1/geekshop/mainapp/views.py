@@ -9,10 +9,6 @@ from .models import Product, ProductCategory
 def category(request, pk=0, page=1):
     title = "каталог"
 
-    basket_str = ''
-    if request.user.is_authenticated:
-        basket_str = Basket.get_short_view_str(user=request.user)
-
     links_menu = ProductCategory.objects.all()
     products = Product.objects.all()
     if pk:
@@ -39,17 +35,12 @@ def category(request, pk=0, page=1):
         ],
         # 'categories': categories,
         'products': products_paginator,
-        'basket_str': basket_str,
     }
     return render(request, 'mainapp/category.html', context)
 
 
 def product(request, pk=0):
     title = "товар"
-
-    basket_str = ''
-    if request.user.is_authenticated:
-        basket_str = Basket.get_short_view_str(user=request.user)
 
     links_menu = ProductCategory.objects.all()
     product = get_object_or_404(Product, pk=pk)
@@ -64,6 +55,5 @@ def product(request, pk=0):
         ],
         # 'categories': categories,
         'product': product,
-        'basket_str': basket_str,
     }
     return render(request, 'mainapp/product.html', context)

@@ -1,7 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.timezone import now
+
 from datetime import timedelta
 
 
@@ -105,3 +108,42 @@ class ShopUser(AbstractUser):
         if now() <= self.activation_key_expires:
             return False
         return True
+
+
+class ShopUserProfile(models.Model):
+    class SexChoices(models.TextChoices):
+        MALE = 'M', 'М'
+        FEMALE = 'F', 'Ж'
+
+    user = models.OneToOneField(
+        ShopUser,
+        unique=True,
+        null=False,
+        db_index=True,
+        on_delete=models.CASCADE
+    )
+    tagline = models.CharField(
+        max_length=128,
+        blank=True,
+        verbose_name='тэги'
+    )
+    about_me = models.TextField(
+        max_length=512,
+        blank=True,
+        verbose_name='о себе'
+    )
+    sex = models.CharField(
+        max_length=1,
+        choices=SexChoices.choices,
+        blank=True,
+        verbose_name='пол'
+    )
+
+    @receiver(post_save, sender=ShopUser)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            ShopUserProfile.objects.create(user=instance)
+
+    @receiver(post_save, sender=ShopUser)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.shopuserprofile.save()

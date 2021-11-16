@@ -96,6 +96,11 @@ class ShopUser(AbstractUser):
         default=get_expires_time
     )
 
+    def is_activation_key_expired(self):
+        if now() <= self.activation_key_expires:
+            return False
+        return True
+
     def get_avatar(self):
         if self.avatar:
             # return self.avatar.url
@@ -104,10 +109,8 @@ class ShopUser(AbstractUser):
             # return 'default-avatar'
             return '<i class="fas fa-user fa-2x"></i>'
 
-    def is_activation_key_expired(self):
-        if now() <= self.activation_key_expires:
-            return False
-        return True
+    def get_name(self):
+        return self.first_name or 'пользователь'
 
 
 class ShopUserProfile(models.Model):

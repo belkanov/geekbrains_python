@@ -45,6 +45,10 @@ class Order(models.Model):
     def __str__(self):
         return f'Заказ {self.id}'
 
+    @staticmethod
+    def get_item(pk):
+        return OrderItems.objects.filter(pk=pk).first()
+
     def get_total_quantity(self):
         items = self.orderitems.select_related()
         return sum(list(map(lambda x: x.quantity, items)))
@@ -65,7 +69,17 @@ class Order(models.Model):
         self.save()
 
 
+class OrderItemQuerySet(models.QuerySet):
+    def delete(self, *args, **kwargs):
+        for obj in self:
+            obj.product.quantity += obj.quantity
+            obj.product.save()
+        super(OrderItemQuerySet, self).delete()
+
+
 class OrderItems(models.Model):
+    objects = OrderItemQuerySet.as_manager()
+
     order = models.ForeignKey(
         Order,
         related_name='orderitems',

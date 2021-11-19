@@ -7,7 +7,17 @@ from mainapp.models import Product
 
 # Create your models here.
 
+class BasketQuerySet(models.QuerySet):
+    def delete(self, *args, **kwargs):
+        for obj in self:
+            obj.product.quantity += obj.quantity
+            obj.product.save()
+        super(BasketQuerySet, self).delete()
+
+
 class Basket(models.Model):
+    objects = BasketQuerySet.as_manager()
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -25,6 +35,10 @@ class Basket(models.Model):
         verbose_name='время добавления товара',
         auto_now_add=True
     )
+
+    @staticmethod
+    def get_item(pk):
+        return Basket.objects.filter(pk=pk).first()
 
     @staticmethod
     def get_short_view_str(user=None):
@@ -48,3 +62,13 @@ class Basket(models.Model):
     @property
     def basket_price(self):
         return Basket.objects.filter(user=self.user).aggregate(basket_price=Sum(F('quantity') * F('product__price')))['basket_price']
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            if self.pk:
+                self.product.quantity -= self.quantity - \
+                                         self.__class__.get_item(self.pk).quantity
+            else:
+                self.product.quantity -= self.quantity
+            self.product.save()
+            super(self.__class__, self).save(*args, **kwargs)

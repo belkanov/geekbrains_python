@@ -25,7 +25,7 @@
         <div class="tab-content">
             {% for product in products_list %}
                 <div class="block">
-                    <a href="#"><img src="{{ product.image.url }}" alt="">
+                    <a href="#"><img src="{{ product.get_image }}" alt="">
                         <div class="text">
                             <img src="{% static 'geekshop/img/icon-hover.png' %}" alt="img">
                             <h4>{{ product.short_desc }}</h4>

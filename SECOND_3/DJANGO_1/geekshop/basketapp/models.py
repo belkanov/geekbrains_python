@@ -43,7 +43,8 @@ class Basket(models.Model):
     @staticmethod
     def get_short_view_str(user=None):
         if user:
-            objs = Basket.objects.filter(user=user)
+            # objs = Basket.objects.filter(user=user)
+            objs = Basket.objects.filter(user=user).select_related('product').only('quantity', 'product__price')
             _sum, _count = 0, 0
             for obj in objs:
                 _count += obj.quantity
@@ -65,10 +66,9 @@ class Basket(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk:
-            if self.pk:
-                self.product.quantity -= self.quantity - \
-                                         self.__class__.get_item(self.pk).quantity
-            else:
-                self.product.quantity -= self.quantity
-            self.product.save()
-            super(self.__class__, self).save(*args, **kwargs)
+            self.product.quantity -= self.quantity - \
+                                     self.__class__.get_item(self.pk).quantity
+        else:
+            self.product.quantity -= self.quantity
+        self.product.save()
+        super(self.__class__, self).save(*args, **kwargs)

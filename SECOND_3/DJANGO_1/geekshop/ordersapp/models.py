@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 from authapp.models import ShopUser
 from mainapp.models import Product
@@ -49,16 +50,28 @@ class Order(models.Model):
     def get_item(pk):
         return OrderItems.objects.filter(pk=pk).first()
 
+    @cached_property
+    def get_items_cached(self):
+        return self.orderitems.select_related()
+
     def get_total_quantity(self):
-        items = self.orderitems.select_related()
-        return sum(list(map(lambda x: x.quantity, items)))
+        _items = self.get_items_cached
+        return sum(list(map(lambda x: x.quantity, _items)))
+
+    def get_total_cost(self):
+        _items = self.get_items_cached
+        return sum(list(map(lambda x: x.get_product_cost(), _items)))
 
     def get_product_type_quantity(self):
         return self.orderitems.select_related().count()
 
-    def get_total_cost(self):
-        items = self.orderitems.select_related()
-        return sum(list(map(lambda x: x.get_product_cost(), items)))
+    def get_summary(self):
+        # _items = self.orderitems.select_related()
+        _items = self.get_items_cached
+        return {
+            'total_cost': sum(list(map(lambda x: x.quantity * x.product.price, _items))),
+            'total_quantity': sum(list(map(lambda x: x.quantity, _items)))
+        }
 
     def delete(self):
         for item in self.orderitems.select_related():

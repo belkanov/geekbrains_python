@@ -58,8 +58,8 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
+*.sqlite3
+*.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -129,3 +129,12 @@ dmypy.json
 .pyre/
 
 .idea/
+SECOND_3/DJANGO_1/geekshop/geekshop/static/geekshop/fonts
+SECOND_3/DJANGO_1/geekshop/geekshop/static/geekshop/img
+SECOND_3/DJANGO_1/geekshop/media/products_images/
+/SECOND_3/DJANGO_1/geekshop/media/users_avatars/avatar_102x110.jpg
+/SECOND_3/DJANGO_1/geekshop/dump.json
+/JS2/Practice/node_modules
+/JS2/Practice/cart.json
+/JS2/Practice/package-lock.json
+/JS2/Practice/stats.json

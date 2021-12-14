@@ -49,7 +49,11 @@ class ProductCategoryAdminCreateForm(forms.ModelForm):
 class ProductCategoryAdminChangeForm(forms.ModelForm):
     class Meta:
         model = ProductCategory
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ()
+
+    discount = forms.IntegerField(label='скидка', required=False,
+                                  min_value=0, max_value=90, initial=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

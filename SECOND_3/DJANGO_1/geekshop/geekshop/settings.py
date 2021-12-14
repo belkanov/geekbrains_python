@@ -136,6 +136,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     Path(BASE_DIR / 'geekshop' / 'static'),  # раз есть Path и его уже пользуют в джанге - буду на нем сидеть
+    Path(BASE_DIR / 'ordersapp' / 'static'),
 )
 
 MEDIA_URL = '/media/'

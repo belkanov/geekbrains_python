@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, ValidationError, UserChangeForm
 from django import forms
 import random, hashlib
-from .models import ShopUser
+from .models import ShopUser, ShopUserProfile
 
 
 class ShopUserLoginForm(AuthenticationForm):
@@ -39,7 +39,7 @@ class ShopUserRegisterForm(UserCreationForm):
 class ShopUserChangeForm(UserChangeForm):
     class Meta:
         model = ShopUser
-        fields = ['username', 'first_name', 'email', 'age', 'avatar', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'age', 'avatar', 'password']
 
     def __init__(self, *args, **kwargs):
         super(UserChangeForm, self).__init__(*args, **kwargs)
@@ -48,3 +48,14 @@ class ShopUserChangeForm(UserChangeForm):
             field.help_text = ''
             if field_name == 'password':
                 field.widget = forms.HiddenInput()
+
+
+class ShopUserProfileChangeForm(forms.ModelForm):
+    class Meta:
+        model = ShopUserProfile
+        fields = ['tagline', 'about_me', 'sex']
+
+    def __init__(self, *args, **kwargs):
+        super(ShopUserProfileChangeForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

@@ -29,6 +29,8 @@ urlpatterns = [
     path('auth/', include('authapp.urls', namespace='auth')),
     path('basket/', include('basketapp.urls', namespace='basket')),
 
+    path('', include('social_django.urls', namespace='social')),
+
     path('load_db_data/<str:f_name>', load_db_data),
 ]
 

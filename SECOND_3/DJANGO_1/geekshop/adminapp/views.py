@@ -1,4 +1,10 @@
+from pprint import pprint
+
 from django.contrib.auth.decorators import user_passes_test
+from django.db import connection
+from django.db.models import F
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.urls import reverse_lazy
@@ -17,6 +23,23 @@ def dflt(request):
     # context = {}
     # return render(request, 'adminapp/base.html', context)
     pass
+
+
+def db_profile_by_type(prefix, type, queries):
+    update_queries = list(filter(lambda x: type in x['sql'], queries))
+    pprint(f'db_profile {type} for {prefix}:')
+    [pprint(query['sql']) for query in update_queries]
+
+
+@receiver(pre_save, sender=ProductCategory)
+def product_is_active_update_productcategory_save(sender, instance, **kwargs):
+    if instance.pk:
+        if instance.is_active:
+            instance.product_set.update(is_active=True)
+        else:
+            instance.product_set.update(is_active=False)
+
+        db_profile_by_type(sender, 'UPDATE', connection.queries)
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -172,7 +195,8 @@ class CategoryUpdateView(UpdateView):
     model = ProductCategory
     template_name = 'adminapp/category_update.html'
     success_url = reverse_lazy('adminka:category_read')
-    fields = '__all__'
+    # fields = '__all__'
+    form_class = ProductCategoryAdminChangeForm
 
     @method_decorator(user_passes_test(lambda u: u.is_superuser))
     def dispatch(self, *args, **kwargs):
@@ -182,6 +206,15 @@ class CategoryUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'категории/редактирование'
         return context
+
+    def form_valid(self, form):
+        if 'discount' in form.cleaned_data:
+            discount = form.cleaned_data['discount']
+            if discount:
+                self.object.product_set. \
+                    update(price=F('price') * (1 - discount / 100))
+                db_profile_by_type(self.__class__, 'UPDATE',
+                                   connection.queries)
 
 
 @user_passes_test(lambda u: u.is_superuser)

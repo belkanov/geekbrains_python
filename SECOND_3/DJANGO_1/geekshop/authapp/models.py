@@ -1,9 +1,11 @@
-from pathlib import Path
-
-from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.timezone import now
+
+from datetime import timedelta
 
 
 def validate_age(value):
@@ -82,6 +84,22 @@ class ShopUser(AbstractUser):
         upload_to='users_avatars',
         blank=True
     )
+    activation_key = models.CharField(
+        max_length=128,
+        blank=True
+    )
+
+    def get_expires_time():
+        return now() + timedelta(hours=24)
+
+    activation_key_expires = models.DateTimeField(
+        default=get_expires_time
+    )
+
+    def is_activation_key_expired(self):
+        if now() <= self.activation_key_expires:
+            return False
+        return True
 
     def get_avatar(self):
         if self.avatar:
@@ -91,4 +109,44 @@ class ShopUser(AbstractUser):
             # return 'default-avatar'
             return '<i class="fas fa-user fa-2x"></i>'
 
+    def get_name(self):
+        return self.first_name or 'пользователь'
 
+
+class ShopUserProfile(models.Model):
+    class SexChoices(models.TextChoices):
+        MALE = 'M', 'М'
+        FEMALE = 'F', 'Ж'
+
+    user = models.OneToOneField(
+        ShopUser,
+        unique=True,
+        null=False,
+        db_index=True,
+        on_delete=models.CASCADE
+    )
+    tagline = models.CharField(
+        max_length=128,
+        blank=True,
+        verbose_name='тэги'
+    )
+    about_me = models.TextField(
+        max_length=512,
+        blank=True,
+        verbose_name='о себе'
+    )
+    sex = models.CharField(
+        max_length=1,
+        choices=SexChoices.choices,
+        blank=True,
+        verbose_name='пол'
+    )
+
+    @receiver(post_save, sender=ShopUser)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            ShopUserProfile.objects.create(user=instance)
+
+    @receiver(post_save, sender=ShopUser)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.shopuserprofile.save()

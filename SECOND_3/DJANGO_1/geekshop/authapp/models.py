@@ -1,9 +1,8 @@
-from pathlib import Path
-
-from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.utils.timezone import now
+from datetime import timedelta
 
 
 def validate_age(value):
@@ -82,6 +81,17 @@ class ShopUser(AbstractUser):
         upload_to='users_avatars',
         blank=True
     )
+    activation_key = models.CharField(
+        max_length=128,
+        blank=True
+    )
+
+    def get_expires_time():
+        return now() + timedelta(hours=24)
+
+    activation_key_expires = models.DateTimeField(
+        default=get_expires_time
+    )
 
     def get_avatar(self):
         if self.avatar:
@@ -91,4 +101,7 @@ class ShopUser(AbstractUser):
             # return 'default-avatar'
             return '<i class="fas fa-user fa-2x"></i>'
 
-
+    def is_activation_key_expired(self):
+        if now() <= self.activation_key_expires:
+            return False
+        return True

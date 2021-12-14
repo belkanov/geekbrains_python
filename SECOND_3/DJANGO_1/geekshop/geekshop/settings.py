@@ -67,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'basketapp.context_processors.basket',
             ],
         },
     },
@@ -138,3 +139,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DOMAIN_NAME = 'https://example.com'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = '808efb5774c705'
+EMAIL_HOST_PASSWORD = '7b54dba7650194'
+EMAIL_PORT = '2525'

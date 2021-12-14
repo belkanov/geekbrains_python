@@ -7,7 +7,16 @@
     {% endfor %}
     {% if user.is_authenticated %}
       <li>
-        <a href="{% url 'auth:edit' %}">{{ user.first_name|default:'Пользователь' }}</a>
+        {# меню работаеет, если включить бутсрап цсс и жс (base.html) #}
+        {# я их отключил, а то больно страшно #}
+        <div class="dropdown">
+          <a class="dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" href="#">{{ user.first_name|default:'Пользователь' }}</a>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><a href="{% url 'auth:edit' %}" class="dropdown-item">Профиль</a></li>
+            <li><a href="{% url 'orders:orders_list' %}" class="dropdown-item">Заказы</a></li>
+            <li><a href="{% url 'adminka:user_read' %}" class="dropdown-item">админка</a></li>
+          </ul>
+        </div>
       </li>
     {% endif %}
     <li>
@@ -20,9 +29,7 @@
     <li>
       <a href="{% url 'basket:view' %}"><b>{% if basket_str %}{{ basket_str }}{% endif %}</b></a>
     </li>
-    <li>
-      <a href="{% url 'adminka:user_read' %}">админка</a>
-    </li>
+
   </ul>
   <a href="#" class="search"></a>
 

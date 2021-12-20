@@ -9,7 +9,7 @@ from django.shortcuts import render
 # Create your views here.
 
 class UserModelViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('pk')
     serializer_class = UserModelSerializer
 
     # потесил в постмане:

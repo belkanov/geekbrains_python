@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'graphene_django',
 
     'authapp',
     'todoapp',
@@ -174,3 +175,7 @@ REST_FRAMEWORK = {
 #     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 #     'TOKEN_TYPE_CLAIM': 'token_type',
 # }
+
+GRAPHENE = {
+    'SCHEMA': 'todoapp.schema.schema'  # Where your Graphene schema lives
+}

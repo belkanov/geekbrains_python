@@ -3,7 +3,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Project, Todo
-from .serializers import ProjectModelSerializer, TodoModelSerializer
+from .serializers import ProjectModelSerializer, TodoModelSerializer, TodoModelCreateSerializer
 
 
 # Create your views here.
@@ -39,3 +39,8 @@ class TodoModelViewSet(ModelViewSet):
     def perform_destroy(self, instance: Todo):
         instance.is_active = False
         instance.save()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return TodoModelCreateSerializer
+        return TodoModelSerializer

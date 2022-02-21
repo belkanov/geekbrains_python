@@ -8,6 +8,7 @@ from common.variables import (
     ACCOUNT_NAME,
     RESPONSE,
     ERROR,
+    DEFAULT_IP,
     DEFAULT_PORT,
     ACTION,
     PRESENCE,
@@ -43,8 +44,8 @@ def parse_client_args():
         '-a',
         metavar='IPv4',
         type=str,
-        default='127.0.0.1',
-        help=f'IP-адрес для покдлючения (по умолчанию 127.0.0.1)'
+        default=DEFAULT_IP,
+        help=f'IP-адрес для покдлючения (по умолчанию {DEFAULT_IP})'
     )
     arg_parser.add_argument(
         '-p',

@@ -2,8 +2,10 @@ import json
 from socket import socket
 
 from .variables import MAX_PACKAGE_LENGTH, ENCODING
+from .decors import log
 
 
+@log
 def get_message(client: socket):
     """
 
@@ -19,6 +21,7 @@ def get_message(client: socket):
     raise ValueError
 
 
+@log
 def send_message(socket: socket, message: dict):
     """
 

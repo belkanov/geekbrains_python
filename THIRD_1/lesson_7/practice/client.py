@@ -3,34 +3,27 @@ import json
 import logging
 import socket
 
-from common.variables import (
-    get_base_msg,
-    USER,
-    ACCOUNT_NAME,
-    RESPONSE,
-    ERROR,
-    DEFAULT_IP,
-    DEFAULT_PORT,
-    ACTION,
-    PRESENCE,
-)
 from common.utils import (
     send_message,
     get_message,
 )
+from common.variables import (
+    ACTION,
+    ACTION_MSG,
+    DEFAULT_IP,
+    DEFAULT_PORT,
+    DEFAULT_USERNAME,
+    ERROR,
+    FROM,
+    MESSAGE,
+    RESPONSE,
+
+    get_jim_presence,
+    get_jim_send_msg,
+)
 
 import log_config.client
 LOG = logging.getLogger('app.client')
-
-
-def create_presence(acc_name='Guest'):
-    LOG.debug('create presence message')
-    presence_msg = get_base_msg()
-    presence_msg[ACTION] = PRESENCE
-    presence_msg[USER] = {
-        ACCOUNT_NAME: acc_name
-    }
-    return presence_msg
 
 
 def process_srv_msg(message: dict):
@@ -39,7 +32,11 @@ def process_srv_msg(message: dict):
         if message[RESPONSE] == 200:
             return '200: OK'
         return f'400: {message[ERROR]}'
-    raise ValueError
+    elif ACTION in message:
+        if message.get(ACTION) == ACTION_MSG:
+            return f'{message.get(FROM)}: {message.get(MESSAGE)}'
+    else:
+        raise ValueError
 
 
 def parse_client_args():
@@ -65,7 +62,20 @@ def parse_client_args():
         '-v',
         action='count',
         default=0,
-        help=f'детальные логи'
+        help='детальные логи'
+    )
+    arg_parser.add_argument(
+        '-s',
+        action='store_true',
+        default=False,
+        help='запустить клиент в режиме отправки сообщений'
+    )
+    arg_parser.add_argument(
+        '-u',
+        metavar='USER_NAME',
+        type=str,
+        default=DEFAULT_USERNAME,
+        help='Отображаемое имя в чате'
     )
     args = arg_parser.parse_args()
     if not (1024 <= args.p <= 65535):
@@ -79,21 +89,32 @@ def main():
         LOG.setLevel(logging.INFO)
 
     LOG.debug('create socket')
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as transport:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as srv_socket:
         LOG.debug('connect to %(a)s:%(p)s', vars(client_args))
-        transport.connect((client_args.a, client_args.p))
+        srv_socket.connect((client_args.a, client_args.p))
 
-        LOG.debug('create_presence()')
-        msg_to_srv = create_presence()
-        LOG.debug('send msg: %s', msg_to_srv)
-        send_message(transport, msg_to_srv)
-
-        try:
-            LOG.debug('process_srv_msg()')
-            srv_answer = process_srv_msg(get_message(transport))
-            LOG.info(srv_answer)
-        except (ValueError, json.JSONDecodeError):
-            LOG.error('Не удалось обработать ответ сервера')
+        # presence надо отправить в любом случае - слушаем мы или отправляем
+        LOG.debug('create presence')
+        presence = get_jim_presence(client_args.u)
+        LOG.debug('send presence: %s', presence)
+        send_message(srv_socket, presence)
+        srv_msg = process_srv_msg(get_message(srv_socket))
+        LOG.info(srv_msg)
+        while True:
+            if client_args.s:
+                msg_to_srv = ''
+                while msg_to_srv.strip() == '':
+                    msg_to_srv = input('Введите сообщение для отправки:')
+                if msg_to_srv == 'exit':
+                    return
+                LOG.debug('send msg: %s', msg_to_srv)
+                send_message(srv_socket, get_jim_send_msg(msg_to_srv, client_args.u, None))
+            else:
+                try:
+                    srv_msg = process_srv_msg(get_message(srv_socket))
+                    LOG.info(srv_msg)
+                except (ValueError, json.JSONDecodeError):
+                    LOG.error('Не удалось обработать ответ сервера')
 
 
 if __name__ == '__main__':

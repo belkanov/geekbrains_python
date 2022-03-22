@@ -1,8 +1,9 @@
 import logging
-import base
+
+from . import base
 
 log = logging.getLogger('app.client')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.ERROR)
 
 file_handler = logging.FileHandler(base.LOG_DIR / 'client.log', encoding='utf-8')
 file_handler.setFormatter(base.FORMATTER)

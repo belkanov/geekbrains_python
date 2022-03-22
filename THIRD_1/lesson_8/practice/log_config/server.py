@@ -1,10 +1,10 @@
 import logging
 from logging import handlers
 
-import base
+from . import base
 
 log = logging.getLogger('app.server')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.ERROR)
 
 file_handler = logging.handlers.TimedRotatingFileHandler(base.LOG_DIR / 'server.log', when='midnight', encoding='utf-8')
 file_handler.setFormatter(base.FORMATTER)

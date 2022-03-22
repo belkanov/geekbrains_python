@@ -134,8 +134,8 @@ def write_messages(msg_list, w_clients, all_clients):
 
 def main():
     srv_args = parse_srv_args()
-    if srv_args.v == 0:
-        LOG.setLevel(logging.INFO)
+    if srv_args.v != 0:
+        LOG.setLevel(logging.DEBUG)
 
     LOG.debug('create socket')
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as transport:
@@ -174,18 +174,6 @@ def main():
                 requests = read_requests(r, clients)
                 write_requests(requests, w, clients, msg_list)
                 write_messages(msg_list, w, clients)
-
-                # with client:
-                #     try:
-                #         LOG.debug('get msg from %s', client)
-                #         msg_from_client = get_message(client)
-                #         LOG.info('msg: %s', msg_from_client)
-                #         LOG.debug('process_client_msg()')
-                #         response = process_client_msg(msg_from_client)
-                #         LOG.debug('send response: %s', response)
-                #         send_message(client, response)
-                #     except (ValueError, json.JSONDecodeError):
-                #         LOG.error('Принято некорректное сообщение от клиента.')
 
 
 if __name__ == '__main__':

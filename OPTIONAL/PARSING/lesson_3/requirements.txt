@@ -4,3 +4,5 @@ beautifulsoup4==4.11.1
 bs4==0.0.1
 
 pymongo==4.1.1
+
+python-dotenv==0.20.0

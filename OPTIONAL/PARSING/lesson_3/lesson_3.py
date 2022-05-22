@@ -15,14 +15,14 @@
 
 Сохраните в json либо csv.
 """
+import json
+import logging
 import re
+from collections import namedtuple
 from time import sleep
 
 import requests
 from bs4 import BeautifulSoup as bs
-from collections import namedtuple
-import logging
-import json
 
 RE_SALARY = re.compile(r'(?:\d+\s*){1,}')
 RE_CURRENCY = re.compile(r'\D+')

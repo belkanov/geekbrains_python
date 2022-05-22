@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db-mongo:
+    image: mongo:5.0.8  # ~700MB
+    container_name: 'gb_mongo'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: gb_mongo_root
+      MONGO_INITDB_ROOT_PASSWORD: gb_mongo_root_pass
+    volumes:
+      - vol-db-mongo:/data/db
+    ports:
+      - "127.0.0.1:27017:27017"
+
+  # 127.0.0.1:28081 - здесь можно поковырять БД
+  mongo-express:
+    image: mongo-express:0.54.0  # ~130MB
+    container_name: 'gb_mongo-express'
+    restart: always
+    ports:
+      - "127.0.0.1:28081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: gb_mongo_root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: gb_mongo_root_pass
+      ME_CONFIG_MONGODB_SERVER: db-mongo
+    depends_on:
+      - db-mongo
+
+volumes:
+  vol-db-mongo:

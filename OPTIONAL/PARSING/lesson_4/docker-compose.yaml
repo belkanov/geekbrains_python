@@ -1,0 +1,31 @@
+# у меня атлас не захотел работать, поэтому решил через докер
+version: '3.8'
+
+services:
+  mongo-db:
+    image: mongo:5.0.8  # ~700MB
+    container_name: 'gb_mongo'
+    env_file: .env
+    volumes:
+      - vol-db-mongo:/data/db
+    ports:
+      - "${MONGODB_HOST:?no MONGODB_HOST in .env}:${MONGODB_PORT:?no MONGODB_PORT in .env}:27017"
+
+  # 127.0.0.1:28081 - здесь можно поковырять БД
+  mongo-express:
+    image: mongo-express:0.54.0  # ~130MB
+    container_name: 'gb_mongo-express'
+    restart: always
+    ports:
+      - "127.0.0.1:28081:8081"
+    env_file: .env
+    environment:
+      # можно еще добавить логопасс для входа на этот веб - я не стал
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongo-db
+    depends_on:
+      - mongo-db
+
+volumes:
+  vol-db-mongo:

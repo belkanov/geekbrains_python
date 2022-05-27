@@ -9,12 +9,13 @@
 (то есть цифра вводится одна, а запрос проверяет оба поля)
 """
 import logging
+from hashlib import sha3_256
 from pprint import pprint
 from time import sleep
 from typing import Optional
+from lxml import html
 
 import requests
-from bs4 import BeautifulSoup as bs
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.errors import DuplicateKeyError
@@ -33,7 +34,7 @@ logger.setLevel(logging.INFO)
 # requests_log.propagate = True
 
 
-def get_response(url, headers, params=None):
+def get_response(url, headers=HEADERS, params=None):
     timeouts = (5, 5)  # conn, read
 
     for i in range(5):
@@ -54,55 +55,7 @@ def get_response(url, headers, params=None):
     else:
         raise SystemExit(1, f'Так и не смог получить ответ для {response.url}')
 
-    # на случай редиректа hh.ru -> rostov.hh.ru
-    splitted_response_url = response.url.split('/')
-    new_main_url = f'{splitted_response_url[0]}//{splitted_response_url[2]}'
-    return response, new_main_url
-
-
-def get_int(re_match):
-    return int(re_match.group().replace(' ', ''))
-
-
-def get_salary(tag):
-    if tag is None:
-        return Salary(None, None, None)
-
-    text = clear_tag_text(tag)
-    # получалось неплохо через всякие сплиты/слайсы/джоины,
-    # но потом пришли 'бел. руб.' и все сломалось =)
-    # поэтому регулярки
-    if 'от' in text:
-        re_salary = RE_SALARY.search(text)
-        salary = get_int(re_salary)
-        re_currency = RE_CURRENCY.search(text, re_salary.end())
-        return Salary(salary, None, re_currency.group())
-    elif 'до' in text:
-        re_salary = RE_SALARY.search(text)
-        salary = get_int(re_salary)
-        re_currency = RE_CURRENCY.search(text, re_salary.end())
-        return Salary(None, salary, re_currency.group())
-    else:
-        re_min_salary = RE_SALARY.search(text)
-        min_salary = get_int(re_min_salary)
-        re_max_salary = RE_SALARY.search(text, re_min_salary.end())
-        max_salary = get_int(re_max_salary)
-        re_currency = RE_CURRENCY.search(text, re_max_salary.end())
-        return Salary(min_salary, max_salary, re_currency.group())
-
-
-def clear_tag_text(tag):
-    text = tag.getText()
-    text = text.replace('\n', '')
-    # внезапно вылезло много пробелов
-    splitted = [word for word in text.split() if word]
-    text = ' '.join(splitted)
-    return text
-
-
-def parse_vacancy_link(tag):
-    link = tag.get('href')
-    return f'{MAIN_URL}{link}'
+    return response
 
 
 def save_to_file(data, file_name):
@@ -110,35 +63,63 @@ def save_to_file(data, file_name):
         f.write(data)
 
 
-def parse_response(response, main_url):
-    vacancies_info = []
+def is_link_ok(link):
+    # Натыкался на разное, что, по идее, не подходит под стандартные новости.
+    # Например
+    # https://news.mail.ru/diafilm/12-po-rossii-kazan/
+    # слайдшоу по достопримечательностям Казани
+    #
+    # https://news.mail.ru/stories/4-foto-dnya/
+    # там галерея из 35 фото с изначально пустыми ДИВами,
+    # Дата самой "новости" всегда 3 ноября 2021 (поэтому ее не беру),
+    # актуальные даты есть только у фото, которые заполняются динамически.
+    #
+    # решил такое пропускать
+    if link.split('/')[-2].isdecimal():
+        return True
+    logger.warning('ПРОПУЩЕНО: скорее всего не обычная новость: %s', link)
+    return False
 
-    soup = bs(response.text, 'html.parser')
-    anchor = soup.find('div', {'class': 'vacancy-serp-content'})
 
-    vacancy_results = anchor.find('div', {'data-qa': 'vacancy-serp__results'})
-    vacancies = vacancy_results.find_all('div', {'class': 'vacancy-serp-item'})
-    logger.info('Нашел %d вакансий. Обрабатываю...', len(vacancies))
-    for vacancy in vacancies:
-        title_tag = vacancy.find('a', {'data-qa': 'vacancy-serp__vacancy-title'})
-        salary_tag = vacancy.find('span', {'data-qa': 'vacancy-serp__vacancy-compensation'})
+def parse_response(response):
+    news_info_list = []
+    news_links = []
+    dom = html.fromstring(response.text)
+    anchor = dom.xpath(XPATH_ANCHOR)[0]
 
-        vacancy_info = {
-            'name': clear_tag_text(title_tag),
-            'salary': get_salary(salary_tag),
-            'link': title_tag.get('href'),
-            'site': main_url,
+    # сначала картинки (5шт)
+    news_links.extend(anchor.xpath('.//a/@href'))
+    # потом текст под ними (6шт)
+    news_links.extend(anchor.xpath('../following-sibling::ul/li[not(contains(@class, "hidden"))]/a/@href'))
+
+    logger.info('Нашел %d новостей. Обрабатываю...', len(news_links))
+    for news_idx, news_link in enumerate(news_links):
+        logger.info('Parse news #%d', news_idx+1)
+        if not is_link_ok(news_link):
+            continue
+
+        news_response = get_response(news_link)
+        news_dom = html.fromstring(news_response.text)
+        news_anchor = news_dom.xpath('//div[@data-logger-parent="content"]')[0]
+
+        metainfo_anchor = news_anchor.xpath('.//span[@class="note"]')
+        news_info = {
+            'link': str(news_link),  # приводим к явной строке <_ElementUnicodeResult>
+            'pub_date': metainfo_anchor[0].xpath('./span/@datetime')[0],
+            'source_name': metainfo_anchor[1].xpath('./a//text()')[0],
+            'source_link': metainfo_anchor[1].xpath('./a/@href')[0],  # решил добавить
+            'news_title': news_anchor.xpath('.//h1/text()')[0],
         }
-        vacancies_info.append(vacancy_info)
+        news_info_list.append(news_info)
 
-    return vacancies_info, anchor
+    return news_info_list
 
 
 def get_mongo_collection(collection_name: str) -> Optional[Collection]:
     client = MongoClient(host=MONGODB_HOST,
                          port=MONGODB_PORT,
-                         username='gb_mongo_root',
-                         password='gb_mongo_root_pass')
+                         username=MONGO_INITDB_ROOT_USERNAME,
+                         password=MONGO_INITDB_ROOT_PASSWORD)
     db = client[MONGODB_DB_NAME]
 
     collection = getattr(db, collection_name, None)
@@ -149,84 +130,39 @@ def get_mongo_collection(collection_name: str) -> Optional[Collection]:
 
 
 def save_to_mongo(data):
-    hh_vacancies = get_mongo_collection('hh_vacancies')
-    # вероятно это не самый эффективный вариант вставки большого кол-ва данных
-    # (по аналогии с одиночной вставкой в обычном SQL)
-    # наверное, лучше бы было обогатить ИДшниками data и вставлять через insert_many...
-    # хз - надо гуглить
-    # но так проще работать с уже существующими вакансиями
+    mailru_news_collection = get_mongo_collection(MONGO_COLLECTION)
     for row in data:
-        # скорее всего ИД уникален только в рамках города (домена) - надо тестить
-        # пока норм. всегда можно переделать =)
         try:
-            # https://city.hh.ru/vacancy/54960009?fro...
-            # -> 54960009
-            vacancy_id = row['link'].split('/')[4].split('?')[0]
-            # mongo любит только 24-знаковые ИД
-            # может это и не best practice, зато не надо новый индекс делать =)
-            _id = ObjectId(f'{vacancy_id:0>24}')
-            hh_vacancies.insert_one({'_id': _id, **row})
+            # если вдруг будет http вместо https или поменяется поддомен, то
+            # получим другой хэш (даже без него все равно уникальность сломается).
+            # Хочется чуть больше стабильности =)
+            # 'https://news.mail.ru/society/51496205/' =>
+            # 'society51496205'
+            news_unique_str = ''.join(row['link'].split('/')[3:5])
+            news_hash = sha3_256(news_unique_str.encode('utf-8')).hexdigest()
+            mailru_news_collection.insert_one({'_id': news_hash, **row})
         except DuplicateKeyError as e:
             logger.debug('Для ID=%s уже есть запись. Пропускаем', vacancy_id)  # noqa
             pass
 
 
-def filter_vacancies_by_salary(salary_value):
-    sleep(1)  # дадим логам отлежаться, а то может получиться каша при выводе
-    print(f'--- Вакансии с ЗП {salary_value:,}+')
-    hh_vacancies = get_mongo_collection('hh_vacancies')
-    # запросы конечно смотрятся страшно на фоне обычных SQL =)
-    for row in hh_vacancies.find({
-        # либо у нас есть значение больше искомого
-        '$or': [{'salary': {'$elemMatch': {'$gte': salary_value}}},
-                {
-                    # либо у нас указана только начальная зарплата
-                    '$and': [
-                        {'salary.0': {'$ne': None}},
-                        {'salary.1': None},
-                    ]
-                }
-                ]
-    }):
-        pprint(row)
-
-
 def main():
-    page_cnt = 1
-    url = VACANCY_URL
-    headers = HEADERS
-    params = PARAMS
-    while True:
-        logger.info('Parse page #%d', page_cnt)
-        response, main_url = get_response(url, headers=headers, params=params)
-        if not response:
-            logger.error('NO response from %s', url)
-            raise SystemExit(1)
+    url = MAIN_URL
+    logger.info('Parse %s', url)
+    response = get_response(url)
+    if not response:
+        logger.error('NO response from %s', url)
+        raise SystemExit(1)
 
-        try:
-            vacancies_info, anchor = parse_response(response, main_url)
-        except ValueError as e:
-            logger.exception(e)
-            save_to_file(response.text, 'error_response.html')
-            raise SystemExit(1)
+    try:
+        news_info_list = parse_response(response)
+    except ValueError as e:
+        logger.exception(e)
+        save_to_file(response.text, 'error_response.html')
+        raise SystemExit(1)
 
-        logger.info('Сохраняю их в Mongo')
-        save_to_mongo(vacancies_info)
-
-        logger.info('Ищу следующую страницу...')
-        next_link = anchor.find('a', {'data-qa': 'pager-next'})
-        if next_link:
-            logger.info('Нашел.')
-            url = f'{main_url}{next_link.get("href")}'
-            params = None
-            page_cnt += 1
-            sleep(1)  # не будем спамить запросами
-        else:
-            logger.info('Видимо это последняя =) Всего обработано %d страниц',
-                        page_cnt)
-            break
-
-    filter_vacancies_by_salary(100_000)
+    logger.info('Сохраняю их в Mongo')
+    save_to_mongo(news_info_list)
 
 
 if __name__ == '__main__':

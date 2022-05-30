@@ -8,3 +8,5 @@ pymongo==4.1.1
 python-dotenv==0.20.0
 
 lxml==4.8.0
+
+selenium==4.2.0
